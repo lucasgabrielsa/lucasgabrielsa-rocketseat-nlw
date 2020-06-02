@@ -2,10 +2,19 @@ import { Request, Response } from "express";
 import knex from "../database/connection";
 
 class PointsController {
-  async list(request: Request, response: Response) {
+  async index(request: Request, response: Response) {
     const trx = await knex.transaction();
     const points = await trx("points").select("*");
     return response.json(points);
+  }
+
+  async show(request: Request, response: Response) {
+    const { id } = request.params;
+    const point = await knex("points").where("id", id).first();
+    if (!point) {
+      return response.status(404).json({ message: "Point Not Found" });
+    }
+    return response.json(point);
   }
 
   async create(request: Request, response: Response) {
