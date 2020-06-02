@@ -7,6 +7,11 @@ const connection = knex({
     filename: path.resolve(__dirname, "database.sqlite"),
   },
   useNullAsDefault: true,
+  debug: true,
+  pool: {
+    min: 1,
+    max: 20,
+  },
 });
 
 export default connection;
