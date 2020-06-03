@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
 import { Map, TileLayer, Marker } from "react-leaflet";
 import api from "../../services/api";
+import axios from "axios";
 
 interface Item {
   id: number;
@@ -12,14 +13,64 @@ interface Item {
   image_url: string;
 }
 
+interface UF {
+  id?: number;
+  sigla?: string;
+  nome?: string;
+}
+
+interface Municipio {
+  id: number;
+  nome: string;
+}
+
 const CreatePoint = () => {
   const [items, setItems] = useState<Item[]>([]);
+  const [ufs, setUfs] = useState<UF[]>([]);
+  const [citys, setCitys] = useState<Municipio[]>([]);
+
+  const [selectedUF, setSelectedUF] = useState<UF>();
+
+  const handleSelectUF = (event: React.FormEvent<HTMLSelectElement>) => {
+    var safeSearchTypeValue: string = event.currentTarget.value;
+    setSelectedUF({ sigla: safeSearchTypeValue });
+  };
 
   useEffect(() => {
     api.get("items").then((response) => {
       setItems(response.data);
     });
   }, []);
+
+  useEffect(() => {
+    axios
+      .get(
+        "https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome"
+      )
+      .then((response) => {
+        setUfs(response.data);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get(
+        `https://servicodados.ibge.gov.br/api/v1/localidades/estados/AC/municipios?orderBy=nome`
+      )
+      .then((response) => {
+        setCitys(response.data);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get(
+        `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedUF?.sigla}/municipios?orderBy=nome`
+      )
+      .then((response) => {
+        setCitys(response.data);
+      });
+  }, [selectedUF]);
 
   return (
     <div id="page-create-point">
@@ -75,16 +126,22 @@ const CreatePoint = () => {
           <div className="field-group">
             <div className="field">
               <label htmlFor="uf">Estado (UF)</label>
-              <select name="uf" id="uf">
-                <option value="0">Selecione uma UF</option>
-                <option value="1">SP</option>
+              <select name="uf" id="uf" onChange={(e) => handleSelectUF(e)}>
+                {ufs.map((uf) => (
+                  <option key={uf.sigla} value={uf.sigla}>
+                    {uf.nome}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="field">
               <label htmlFor="city">Cidade</label>
               <select name="city" id="city">
-                <option value="0">Selecione uma cidade</option>
-                <option value="1">Uberaba</option>
+                {citys.map((city) => (
+                  <option key={city.id} value={city.nome}>
+                    {city.nome}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
