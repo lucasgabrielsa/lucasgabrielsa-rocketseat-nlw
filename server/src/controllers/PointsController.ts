@@ -3,18 +3,27 @@ import knex from "../database/connection";
 
 class PointsController {
   async index(request: Request, response: Response) {
-    const trx = await knex.transaction();
-    const points = await trx("points").select("*");
-    return response.json(points);
+    await knex.transaction(async (trx) => {
+      const points = await trx("points").select("*");
+      return response.json(points);
+    });
   }
 
   async show(request: Request, response: Response) {
     const { id } = request.params;
-    const point = await knex("points").where("id", id).first();
-    if (!point) {
-      return response.status(404).json({ message: "Point Not Found" });
-    }
-    return response.json(point);
+    await knex.transaction(async (trx) => {
+      const point = await trx("points").where("id", id).first();
+
+      if (!point) {
+        return response.status(404).json({ message: "Point Not Found" });
+      }
+
+      const items = await trx("items")
+        .join("point_items", "items.id", "=", "point_items.item_id")
+        .where("point_items.item_id", id);
+
+      return response.json({ ...point, items });
+    });
   }
 
   async create(request: Request, response: Response) {
