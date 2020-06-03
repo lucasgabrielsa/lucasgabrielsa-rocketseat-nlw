@@ -29,8 +29,8 @@ const CreatePoint = () => {
   const [ufs, setUfs] = useState<UF[]>([]);
   const [citys, setCitys] = useState<Municipio[]>([]);
 
-  const [selectedUF, setSelectedUF] = useState<UF>();
-  const [selectedCity, setSelectedCity] = useState<Municipio>();
+  const [selectedUF, setSelectedUF] = useState<UF>({ sigla: "00" });
+  const [selectedCity, setSelectedCity] = useState<Municipio>({ nome: "00" });
 
   const handleSelectUF = (event: ChangeEvent<HTMLSelectElement>) => {
     const { value } = event.target;
@@ -135,6 +135,7 @@ const CreatePoint = () => {
                 onChange={handleSelectUF}
                 value={selectedUF?.sigla}
               >
+                <option value="00">Selecione um estado</option>
                 {ufs.map((uf) => (
                   <option key={uf.sigla} value={uf.sigla}>
                     {uf.nome}
@@ -150,6 +151,7 @@ const CreatePoint = () => {
                 value={selectedCity?.nome}
                 onChange={handleSelectedCity}
               >
+                <option value="00">Selecione uma cidade</option>
                 {citys.map((city) => (
                   <option key={city.id} value={city.nome}>
                     {city.nome}
