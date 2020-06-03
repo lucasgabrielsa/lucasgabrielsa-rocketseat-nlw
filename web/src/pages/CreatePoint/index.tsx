@@ -4,6 +4,7 @@ import logo from "../../assets/logo.svg";
 import { Link } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
 import { Map, TileLayer, Marker } from "react-leaflet";
+import { LeafletMouseEvent } from "leaflet";
 import api from "../../services/api";
 import axios from "axios";
 
@@ -29,8 +30,17 @@ const CreatePoint = () => {
   const [ufs, setUfs] = useState<UF[]>([]);
   const [citys, setCitys] = useState<Municipio[]>([]);
 
+  const [initialPosition, setInitialPosition] = useState<[number, number]>([
+    0,
+    0,
+  ]);
+
   const [selectedUF, setSelectedUF] = useState<UF>({ sigla: "00" });
   const [selectedCity, setSelectedCity] = useState<Municipio>({ nome: "00" });
+  const [selectedPosition, setSelectedPosition] = useState<[number, number]>([
+    0,
+    0,
+  ]);
 
   const handleSelectUF = (event: ChangeEvent<HTMLSelectElement>) => {
     const { value } = event.target;
@@ -40,6 +50,14 @@ const CreatePoint = () => {
   const handleSelectedCity = (event: ChangeEvent<HTMLSelectElement>) => {
     const { value } = event.target;
     setSelectedCity({ nome: value });
+  };
+
+  const handleSubmit = () => {
+    console.log("handleSubmit");
+  };
+
+  const handleMapClick = (event: LeafletMouseEvent) => {
+    setSelectedPosition([event.latlng.lat, event.latlng.lng]);
   };
 
   useEffect(() => {
@@ -63,6 +81,13 @@ const CreatePoint = () => {
             setCitys(response.data);
           });
       });
+  }, []);
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      const { latitude, longitude } = position.coords;
+      setInitialPosition([latitude, longitude]);
+    });
   }, []);
 
   useEffect(() => {
@@ -118,12 +143,12 @@ const CreatePoint = () => {
             <span>Selecione o endereço no mapa</span>
           </legend>
 
-          <Map center={[-18.9054795, -48.328996]} zoom={15}>
+          <Map center={initialPosition} zoom={15} onclick={handleMapClick}>
             <TileLayer
               attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <Marker position={[-18.9054795, -48.328996]} />
+            <Marker position={selectedPosition} />
           </Map>
 
           <div className="field-group">
@@ -178,7 +203,9 @@ const CreatePoint = () => {
           </ul>
         </fieldset>
 
-        <button type="submit">Cadastrar ponto de coleta</button>
+        <button type="submit" onClick={handleSubmit}>
+          Cadastrar ponto de coleta
+        </button>
       </form>
     </div>
   );
