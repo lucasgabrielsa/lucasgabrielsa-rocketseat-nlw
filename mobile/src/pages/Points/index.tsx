@@ -10,11 +10,16 @@ import {
   Alert,
 } from "react-native";
 import Constants from "expo-constants";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import MapView, { Marker } from "react-native-maps";
 import { SvgUri } from "react-native-svg";
 import api from "../../services/api";
 import * as Location from "expo-location";
+
+interface Params {
+  uf: string;
+  city: string;
+}
 
 interface Item {
   id: number;
@@ -38,6 +43,9 @@ const Points = () => {
     0,
   ]);
   const [points, setPoints] = useState<Point[]>([]);
+  const route = useRoute();
+  const routeParams = route.params as Params;
+  const { uf, city } = routeParams;
 
   const navigation = useNavigation();
 
@@ -75,9 +83,9 @@ const Points = () => {
     api
       .get("points", {
         params: {
-          city: "Uberlândia",
-          uf: "MG",
-          items: [1],
+          city,
+          uf,
+          items: selectedItems,
         },
       })
       .then(
@@ -88,7 +96,7 @@ const Points = () => {
           console.error(error);
         }
       );
-  }, []);
+  }, [selectedItems]);
 
   const handleNavigateBack = () => {
     navigation.goBack();
