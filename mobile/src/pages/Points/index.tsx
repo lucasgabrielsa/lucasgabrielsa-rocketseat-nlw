@@ -38,11 +38,11 @@ interface Point {
 const Points = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const [points, setPoints] = useState<Point[]>([]);
   const [initialPosition, setInitialPosition] = useState<[number, number]>([
     0,
     0,
   ]);
-  const [points, setPoints] = useState<Point[]>([]);
   const route = useRoute();
   const routeParams = route.params as Params;
   const { uf, city } = routeParams;
