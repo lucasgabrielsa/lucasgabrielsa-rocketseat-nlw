@@ -78,10 +78,12 @@ const CreatePoint = () => {
     data.append("whatsapp", whatsapp);
     data.append("latitude", String(latitude));
     data.append("longitude", String(longitude));
-    data.append("uf", uf);
-    data.append("city", city);
+    data.append("uf", uf!);
+    data.append("city", city!);
     data.append("items", items.join(","));
-    data.append("image", image);
+    if (selectedFile) {
+      data.append("image", selectedFile);
+    }
 
     await api.post("points", data).then(
       (response) => {
