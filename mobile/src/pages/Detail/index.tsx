@@ -17,6 +17,11 @@ interface Params {
   point_id: number;
 }
 
+interface Item {
+  id: number;
+  title: string;
+}
+
 interface Point {
   id: number;
   name: string;
@@ -25,6 +30,7 @@ interface Point {
   city: string;
   uf: string;
   email: string;
+  items: Item[];
 }
 
 const Detail = () => {
@@ -64,7 +70,9 @@ const Detail = () => {
           }}
         />
         <Text style={styles.pointName}>{point?.name}</Text>
-        <Text style={styles.pointItems}>Lâmpadas, Óleo de cozinha</Text>
+        <Text style={styles.pointItems}>
+          {point?.items.map((item) => item.title).join(", ")}
+        </Text>
 
         <View style={styles.address}>
           <Text style={styles.addressTitle}>Endereço</Text>

@@ -41,7 +41,7 @@ class PointsController {
 
       const items = await trx("items")
         .join("point_items", "items.id", "=", "point_items.item_id")
-        .where("point_items.item_id", id);
+        .where("point_items.point_id", id);
 
       return response.json({ ...point, items });
     });
@@ -59,31 +59,34 @@ class PointsController {
       items,
     } = request.body;
 
+    let pointItems: any;
+    let point_id: number;
+    const point = {
+      image:
+        "https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=80",
+      name,
+      email,
+      whatsapp,
+      latitude,
+      longitude,
+      city,
+      uf,
+    };
+
     await knex.transaction(async (trx) => {
-      const point = {
-        image:
-          "https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=80",
-        name,
-        email,
-        whatsapp,
-        latitude,
-        longitude,
-        city,
-        uf,
-      };
-
       const insertedIds = await trx("points").insert(point);
-
-      const point_id = insertedIds[0];
-      const pointItems = items.map((item_id: Number) => {
+      point_id = Number(insertedIds[0]);
+      pointItems = items.map((item_id: Number) => {
         return {
           point_id,
           item_id,
         };
       });
+    });
 
-      await trx("point_items").insert(pointItems);
-
+    await knex.transaction(async (trx) => {
+      const insertPointItens = await trx("point_items").insert(pointItems);
+      console.log("insertPointItens", insertPointItens);
       return response.json({ ...point, id: point_id });
     });
   }
