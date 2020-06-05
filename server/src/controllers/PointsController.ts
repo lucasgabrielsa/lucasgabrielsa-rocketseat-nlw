@@ -69,8 +69,8 @@ class PointsController {
       const point_id = insertedIds[0];
       const pointItems = items.map((item_id: Number) => {
         return {
-          item_id,
           point_id,
+          item_id,
         };
       });
 

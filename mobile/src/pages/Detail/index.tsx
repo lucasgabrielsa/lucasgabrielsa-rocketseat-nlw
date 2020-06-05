@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,13 +7,43 @@ import {
   Image,
   SafeAreaView,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { Feather as Icon, FontAwesome } from "@expo/vector-icons";
 import { RectButton } from "react-native-gesture-handler";
 import Constants from "expo-constants";
+import api from "../../services/api";
+
+interface Params {
+  point_id: number;
+}
+
+interface Point {
+  id: number;
+  name: string;
+  image: string;
+  whatsapp: string;
+  city: string;
+  uf: string;
+  email: string;
+}
 
 const Detail = () => {
+  const [point, setPoint] = useState<Point>();
   const navigation = useNavigation();
+  const route = useRoute();
+  const routeParams = route.params as Params;
+  const { point_id } = routeParams;
+
+  useEffect(() => {
+    api.get(`points/${point_id}`).then(
+      (response) => {
+        setPoint(response.data);
+      },
+      (error) => {
+        console.error(error);
+      }
+    );
+  }, []);
 
   const handleNavigateBack = () => {
     navigation.goBack();
@@ -33,12 +63,14 @@ const Detail = () => {
               "https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=80",
           }}
         />
-        <Text style={styles.pointName}>Mercadão do João</Text>
+        <Text style={styles.pointName}>{point?.name}</Text>
         <Text style={styles.pointItems}>Lâmpadas, Óleo de cozinha</Text>
 
         <View style={styles.address}>
           <Text style={styles.addressTitle}>Endereço</Text>
-          <Text style={styles.addressContent}>Uberlândia, MG</Text>
+          <Text style={styles.addressContent}>
+            {point?.city}, {point?.uf}
+          </Text>
         </View>
       </View>
       <View style={styles.footer}>
